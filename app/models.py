@@ -21,6 +21,8 @@ class Message:
 class Target:
     name: str
     messages: tuple[Message, ...]
+    # 自定义备注名。设置后搜索优先用备注、定位时昵称或备注任一命中即视为成功。
+    remark: str | None = None
 
 
 @dataclass(frozen=True)

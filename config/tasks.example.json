@@ -17,6 +17,7 @@
     },
     {
       "name": "测试好友B",
+      "remark": "B的备注名",
       "messages": [
         {
           "type": "random",

@@ -150,3 +150,53 @@ def test_rejects_non_positive_target_open_timeout(tmp_path: Path) -> None:
 
     with pytest.raises(ConfigError, match="target_open_timeout_seconds"):
         load_task(settings_for(path))
+
+
+def test_loads_target_remark(tmp_path: Path) -> None:
+    path = write_config(
+        tmp_path,
+        {
+            "targets": [
+                {
+                    "name": "好友昵称",
+                    "remark": "我的备注",
+                    "messages": [{"type": "text", "content": "你好"}],
+                }
+            ]
+        },
+    )
+
+    task = load_task(settings_for(path))
+
+    assert task.targets[0].name == "好友昵称"
+    assert task.targets[0].remark == "我的备注"
+
+
+def test_remark_equal_to_name_is_dropped(tmp_path: Path) -> None:
+    path = write_config(
+        tmp_path,
+        {
+            "targets": [
+                {
+                    "name": "好友A",
+                    "remark": "好友A",
+                    "messages": [{"type": "text", "content": "你好"}],
+                }
+            ]
+        },
+    )
+
+    task = load_task(settings_for(path))
+
+    assert task.targets[0].remark is None
+
+
+def test_remark_is_optional(tmp_path: Path) -> None:
+    path = write_config(
+        tmp_path,
+        {"targets": [{"name": "好友A", "messages": [{"type": "text", "content": "你好"}]}]},
+    )
+
+    task = load_task(settings_for(path))
+
+    assert task.targets[0].remark is None

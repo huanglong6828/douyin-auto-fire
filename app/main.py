@@ -64,7 +64,7 @@ async def run(dry_run: bool = False, env_file: str | None = None) -> int:
                     sent = 0
                     try:
                         LOGGER.info("处理好友: %s", target.name)
-                        await chat.open_target(target.name, retries=task.target_open_retries)
+                        await chat.open_target(target.name, target.remark, retries=task.target_open_retries)
                         if not dry_run:
                             for message_index, message in enumerate(target.messages):
                                 message_id = _message_id(message_index, message)

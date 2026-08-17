@@ -116,10 +116,18 @@ def _parse_target(raw: Any, index: int, config_dir: Path) -> Target:
     if not isinstance(raw, dict):
         raise ConfigError(f"{label} 必须是对象")
     name = _non_empty_string(raw.get("name"), f"{label}.name")
+    remark = _optional_string(raw.get("remark"))
+    if remark is not None and remark == name:
+        # 备注与昵称相同时无需重复匹配，统一置空避免冗余搜索。
+        remark = None
     messages_raw = raw.get("messages")
     if not isinstance(messages_raw, list) or not messages_raw:
         raise ConfigError(f"{label}.messages 必须是非空数组")
-    return Target(name=name, messages=tuple(_parse_message(item, f"{label}.messages[{i}]", config_dir) for i, item in enumerate(messages_raw)))
+    return Target(
+        name=name,
+        remark=remark,
+        messages=tuple(_parse_message(item, f"{label}.messages[{i}]", config_dir) for i, item in enumerate(messages_raw)),
+    )
 
 
 def _parse_message(raw: Any, label: str, config_dir: Path) -> Message:
