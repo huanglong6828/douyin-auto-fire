@@ -115,8 +115,13 @@ def _parse_target(raw: Any, index: int, config_dir: Path) -> Target:
     label = f"targets[{index}]"
     if not isinstance(raw, dict):
         raise ConfigError(f"{label} 必须是对象")
-    name = _non_empty_string(raw.get("name"), f"{label}.name")
+    name = _optional_string(raw.get("name"))
     remark = _optional_string(raw.get("remark"))
+    if not name and not remark:
+        raise ConfigError(f"{label} 必须配置 name 或 remark 至少一项")
+    # 只填备注时用备注作为 name 兜底，确保下游总有可用主名（日志、历史记录、错误信息）。
+    if not name:
+        name = remark
     if remark is not None and remark == name:
         # 备注与昵称相同时无需重复匹配，统一置空避免冗余搜索。
         remark = None

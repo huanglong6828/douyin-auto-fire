@@ -200,3 +200,30 @@ def test_remark_is_optional(tmp_path: Path) -> None:
     task = load_task(settings_for(path))
 
     assert task.targets[0].remark is None
+
+
+def test_only_remark_without_name(tmp_path: Path) -> None:
+    path = write_config(
+        tmp_path,
+        {
+            "targets": [
+                {"remark": "我的备注", "messages": [{"type": "text", "content": "你好"}]}
+            ]
+        },
+    )
+
+    task = load_task(settings_for(path))
+
+    # 只填备注时 name 兜底为备注值，remark 因与 name 相同被置空
+    assert task.targets[0].name == "我的备注"
+    assert task.targets[0].remark is None
+
+
+def test_rejects_target_without_name_and_remark(tmp_path: Path) -> None:
+    path = write_config(
+        tmp_path,
+        {"targets": [{"messages": [{"type": "text", "content": "你好"}]}]},
+    )
+
+    with pytest.raises(ConfigError, match="name 或 remark"):
+        load_task(settings_for(path))
